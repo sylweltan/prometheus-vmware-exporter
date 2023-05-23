@@ -1,13 +1,17 @@
 package main
 
 import (
-	"./controller"
+	// "./controller"
+	// "github.com/sylweltan/prometheus-vmware-exporter"
 	"flag"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
+
+	controllers "github.com/sylweltan/prometheus-vmware-exporter/controller"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	log "github.com/sirupsen/logrus"
 )
 
 var (

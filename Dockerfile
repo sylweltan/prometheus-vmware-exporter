@@ -1,4 +1,4 @@
-FROM golang:1.11 as builder
+FROM golang:1.20 as builder
 WORKDIR /src/github.com/devinotelecom/prometheus-vmware-exporter
 COPY ./ /src/github.com/devinotelecom/prometheus-vmware-exporter
 RUN go get -d -v
