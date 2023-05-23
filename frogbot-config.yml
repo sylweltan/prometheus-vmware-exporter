@@ -3,5 +3,5 @@
       repoName: prometheus-vmware-exporter
       branches:
         - master
-        - feature/small-steps
+        - "feature/small-steps"
 
