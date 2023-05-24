@@ -21,7 +21,7 @@ jobs:
           - goarch: "386"
             goos: windows 
           - goarch: "386"
-            goos: darwin 
+            goos: darwin
     steps:
     - uses: actions/checkout@v3
 
@@ -32,7 +32,7 @@ jobs:
     - name: Environment Printer
       uses: managedkaos/print-env@v1.0
 
-    - uses: wangyoucao577/go-release-action@v1.16
+    - uses: wangyoucao577/go-release-action@v1.38
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
@@ -40,3 +40,4 @@ jobs:
         project_path: "${{ env.CMD_PATH }}"
         build_flags: -v
         ldflags: -X "main.appVersion=${{ env.APP_VERSION }}" -X "main.buildTime=${{ env.BUILD_TIME }}" -X main.gitCommit=${{ github.sha }} -X main.gitRef=${{ github.ref }}
+        binary_name: "prometheus-vmware-exporter"

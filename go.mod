@@ -15,4 +15,6 @@ require (
 	github.com/vmware/govmomi v0.30.4 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
+	github.com/json-iterator/go v1.1.12
+	github.com/jpillora/backoff v1.0.0
 )
