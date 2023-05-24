@@ -1,6 +1,13 @@
 name: Go CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - "feature/small-steps"
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   builds:
@@ -27,4 +34,3 @@ jobs:
       - name: Test
         # run: go test -v
         run: go test -v **/*_test.go
-
