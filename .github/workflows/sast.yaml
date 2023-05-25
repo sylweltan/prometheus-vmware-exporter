@@ -1,0 +1,116 @@
+name: "Static Analysis"
+on:
+  push:
+    tags-ignore:
+      - '**'
+    paths:
+      - "go.sum"
+      - "go.mod"
+      - "**.go"
+      - ".github/workflows/sast.yaml"
+      - ".golangci.yml"
+  pull_request:
+
+jobs:
+  Static-Check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+
+      # Generate mocks
+      - name: Generate mocks
+        run: go generate ./...
+
+      - name: Static Code Analysis
+        uses: golangci/golangci-lint-action@v3
+        with:
+          skip-cache: true
+          skip-pkg-cache: true
+          skip-build-cache: true
+          args: |
+            --timeout 5m --out-${NO_FUTURE}format colored-line-number -issues-exit-code 0 --enable errcheck,gosimple,govet,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,exportloopref,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars 
+
+
+
+          # --timeout 5m --out-${NO_FUTURE}format colored-line-number --enable errcheck,gosimple,govet,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,exportloopref,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars 
+
+
+          # --timeout 5m --out-format checkstyle:golangci-report.xml -issues-exit-code 0 
+          
+          # --timeout 5m --out-${NO_FUTURE}format colored-line-number --enable errcheck,gosimple,govet,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,exportloopref,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars 
+          # --timeout 5m --out-format checkstyle:golangci-report.xml -issues-exit-code 0 
+
+      # - name: Cache golangci-lint report
+      #   uses: actions/cache@v2
+      #   env:
+      #     cache-name: cache-golangci-lint-report
+      #   with:
+      #     path: ./golangci-report.xml
+      #     key: ${{ github.sha }}
+          # key: golangci-report.xml
+          # restore-keys: |
+
+  Go-Sec:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+      
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: -no-fail -exclude-dir=\.*test\.* -fmt=sonarqube -out=./gosec-report.json -stdout ./...
+          # args: -exclude=G204,G301,G302,G304,G306 -exclude-dir=\.*test\.* ./...
+          # args: -no-fail -exclude-dir=\.*test\.* --verbose sonar -out=./gosec-report.json ./...
+
+      - name: Cache gosec report
+        uses: actions/cache@v2
+        id: restore-gosec-report
+        # env:
+        #   cache-name: cache-gosec-report
+        with:
+          path: ./gosec-report.json
+          key: ${{ github.sha }}
+
+
+  SonarCloud:
+    runs-on: ubuntu-latest
+    # needs: [Static-Check,Go-Sec]
+    needs: [Go-Sec]
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+      
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+      
+      - uses: actions/cache@v2
+        id: restore-gosec-report
+        with:
+          path: ./gosec-report.json
+          key: ${{ github.sha }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1.9.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # - name: Build
+      #   run: go build -v
+
+      # - name: Test
+      #   # run: go test -v
+      #   run: go test -v **/*_test.go
