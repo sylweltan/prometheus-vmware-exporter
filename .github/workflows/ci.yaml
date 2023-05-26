@@ -30,7 +30,8 @@ jobs:
         # run: go test -v **/*_test.go
         run: |
           go test -coverprofile=./cov-report.out ./...
-          go tool cover -html=cov-report.out -o coverage-report.html
+          # go tool cover -html=cov-report.out -o coverage-report.html
+          go test -race -coverprofile=coverage.out -covermode=atomic
 
       - name: Cache test coverage report
         uses: actions/cache@v3
@@ -131,3 +132,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  CodeCov:
+    runs-on: ubuntu-latest
+    needs: [Builds]
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+      
+      - uses: actions/cache@v3
+        id: restore-test-coverage-report
+        with:
+          path: ./cov-report.out
+          key: ${{ github.sha }}
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: cov-report.out
+          flags: unittests
+          verbose: true

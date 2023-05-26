@@ -17,6 +17,7 @@ Collect metrics ESXi Host
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=prometheus-vmware-exporter&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=prometheus-vmware-exporter)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=prometheus-vmware-exporter&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=prometheus-vmware-exporter)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=prometheus-vmware-exporter&metric=coverage)](https://sonarcloud.io/summary/new_code?id=prometheus-vmware-exporter)
+[![codecov](https://codecov.io/github/sylweltan/prometheus-vmware-exporter/branch/master/graph/badge.svg?token=6KIJFNB8WG)](https://codecov.io/github/sylweltan/prometheus-vmware-exporter)
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=prometheus-vmware-exporter)](https://sonarcloud.io/summary/new_code?id=prometheus-vmware-exporter)
 
