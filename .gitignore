@@ -2,6 +2,12 @@
 k8s*.yml
 
 sylweltan/**
+.scannerwork/**
+*report*.json
+*report*.xml
+*report*.out
+
+
 main_test.go
 
 .vscode/*
