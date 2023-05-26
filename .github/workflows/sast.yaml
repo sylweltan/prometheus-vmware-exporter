@@ -4,12 +4,15 @@ on:
     # tags-ignore:
     #   - '**'
     paths:
-      - "go.sum"
-      - "go.mod"
-      - "**.go"
-      - ".github/workflows/sast.yaml"
-      - ".golangci.yml"
-  pull_request:
+      - "doesnt_exist.haha"
+      # - "go.sum"
+      # - "go.mod"
+      # - "**.go"
+      # - ".github/workflows/sast.yaml"
+      # - ".golangci.yml"
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
+  repository_dispatch:
 
 jobs:
   Static-Check:
@@ -35,29 +38,15 @@ jobs:
           args: |
             --timeout 5m --out-${NO_FUTURE}format checkstyle:golangci-report.xml --issues-exit-code 0 --enable errcheck,gosimple,govet,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,exportloopref,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars 
 
-          # --timeout 5m --out-${NO_FUTURE}format colored-line-number -issues-exit-code 0 --enable errcheck,gosimple,govet,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,exportloopref,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars 
-          # --timeout 5m --out-${NO_FUTURE}format colored-line-number --enable errcheck,gosimple,govet,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,exportloopref,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars 
           # --timeout 5m --out-format checkstyle:golangci-report.xml -issues-exit-code 0 
-          
           # --timeout 5m --out-${NO_FUTURE}format colored-line-number --enable errcheck,gosimple,govet,ineffassign,staticcheck,typecheck,unused,gocritic,asasalint,asciicheck,errchkjson,exportloopref,forcetypeassert,makezero,nilerr,unparam,unconvert,wastedassign,usestdlibvars 
-          # --timeout 5m --out-format checkstyle:golangci-report.xml -issues-exit-code 0 
 
-      - name: Cache gosec report
-        uses: actions/cache@v2
+      - name: Cache golangci-lint report
+        uses: actions/cache@v3
         id: restore-golangci-lint-report
         with:
           path: ./golangci-report.xml
           key: ${{ github.sha }}
-
-      # - name: Cache golangci-lint report
-      #   uses: actions/cache@v2
-      #   env:
-      #     cache-name: cache-golangci-lint-report
-      #   with:
-      #     path: ./golangci-report.xml
-      #     key: ${{ github.sha }}
-          # key: golangci-report.xml
-          # restore-keys: |
 
   Go-Sec:
     runs-on: ubuntu-latest
@@ -78,10 +67,8 @@ jobs:
           # args: -no-fail -exclude-dir=\.*test\.* --verbose sonar -out=./gosec-report.json ./...
 
       - name: Cache gosec report
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: restore-gosec-report
-        # env:
-        #   cache-name: cache-gosec-report
         with:
           path: ./gosec-report.json
           key: ${{ github.sha }}
@@ -90,7 +77,6 @@ jobs:
   SonarCloud:
     runs-on: ubuntu-latest
     needs: [Static-Check,Go-Sec]
-    # needs: [Go-Sec]
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
@@ -100,20 +86,17 @@ jobs:
         with:
           go-version: 1.20.x
       
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: restore-gosec-report
         with:
           path: ./gosec-report.json
           key: ${{ github.sha }}
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: restore-golangci-lint-report
         with:
           path: ./golangci-report.xml
           key: ${{ github.sha }}
-
-      - name: Debug stop
-        run: find . -name *.json
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v1.9.1

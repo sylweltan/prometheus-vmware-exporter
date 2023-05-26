@@ -6,6 +6,8 @@ sylweltan/**
 *report*.json
 *report*.xml
 *report*.out
+*report*.html
+
 
 
 main_test.go
