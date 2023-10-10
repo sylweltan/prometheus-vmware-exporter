@@ -1,0 +1,41 @@
+name: Anchore Grype vulnerability scan
+
+on:
+  # push:
+  #   branches: [ "master" ]
+  # pull_request:
+  #   # The branches below must be a subset of the branches above
+  #   branches: [ "master" ]
+  # schedule:
+  #   - cron: '42 18 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Anchore-Build-Scan:
+  Anchore-Scan:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+    # - name: Check out the code
+    #   uses: actions/checkout@v3
+    # - name: Build the Docker image
+    #   run: docker build . --file Dockerfile --tag localbuild/testimage:latest
+    - name: Run the Anchore Grype scan action
+      # uses: anchore/scan-action@d5aa5b6cb9414b0c7771438046ff5bcfa2854ed7
+      uses: anchore/scan-action@v3
+      id: scan
+      with:
+        image: "sylweltan/prometheus-vmware-exporter:latest"
+        fail-build: true
+        severity-cutoff: critical
+    - name: Upload vulnerability report
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ${{ steps.scan.outputs.sarif }}
+        category: anchore

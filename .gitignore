@@ -2,6 +2,7 @@
 k8s*.yml
 
 sylweltan/**
+molu/**
 .scannerwork/**
 *report*.json
 *report*.xml
