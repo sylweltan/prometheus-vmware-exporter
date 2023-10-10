@@ -1,0 +1,55 @@
+name: Semgrep
+
+on:
+  # push:
+  #   branches: [ "master", "develop" ]
+  # pull_request:
+  #   # The branches below must be a subset of the branches above
+  #   branches: [ "master" ]
+  # schedule:
+  #   - cron: '35 6 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep-full:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    name: Scan
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - name: clone application source code
+        uses: actions/checkout@v3
+      - name: full scan
+        run: |
+          semgrep --sarif --output semgrep.sarif --metrics=off --config="p/default"
+
+      # # Scan code using project's configuration on https://semgrep.dev/manage
+      # - uses: returntocorp/semgrep-action@fcd5ab7459e8d91cb1777481980d1b18b4fc6735
+      #   with:
+      #     publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
+      #     publishDeployment: ${{ secrets.SEMGREP_DEPLOYMENT_ID }}
+      #     generateSarif: "1"
+
+      # Upload SARIF file generated in previous step
+
+      - name: upload-sarif
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: semgrep.sarif
+          path: semgrep.sarif
+          retention-days: 20
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+        if: always()
